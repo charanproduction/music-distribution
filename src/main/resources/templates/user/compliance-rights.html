@@ -1,0 +1,36 @@
+<h3>Digital Distribution Agreement</h3>
+
+<div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+<div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+<div style="max-height: 280px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin-bottom: 15px;">
+    <h5>Agreement</h5>
+    <p>
+        This Agreement authorizes <strong>Your Company Name</strong> (“Company”) to distribute your sound
+        recordings (“Content”) to digital streaming and download platforms worldwide...
+    </p>
+    <!-- (you can paste the same legal bullets we used in PDF here) -->
+</div>
+
+<form th:action="@{/user/compliance/rights}" method="post" enctype="multipart/form-data">
+
+    <div class="form-check mb-2">
+        <input class="form-check-input" type="checkbox" id="acceptTerms" name="acceptTerms" required>
+        <label class="form-check-label" for="acceptTerms">
+            I have read and agree to the terms of the Digital Distribution Agreement.
+        </label>
+    </div>
+
+    <div class="form-group mb-2">
+        <label>Your full name (digital signature)</label>
+        <input type="text" name="signatureName" class="form-control" required>
+    </div>
+
+    <div class="form-group mb-3">
+        <label>Upload signed agreement (optional, PDF)</label>
+        <input type="file" name="signedPdf" class="form-control">
+        <small class="text-muted">If you don't upload, a PDF will be generated with your digital signature.</small>
+    </div>
+
+    <button class="btn btn-primary">Submit Consent</button>
+</form>

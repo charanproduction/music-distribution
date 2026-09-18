@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body th:replace="layout_user :: layout(~{::content}, 'dashboard')">
+
+<div th:fragment="content">
+
+    <h3 class="fw-bold mb-3">
+        <i class="fas fa-headphones text-primary"></i>
+        Welcome <span th:text="${channelName}"></span>
+    </h3>
+
+    <div class="row">
+
+        <div class="col-md-3">
+            <div class="small-box bg-info text-white">
+                <div class="inner">
+                    <h3 th:text="${totalSongs}">0</h3>
+                    <p>Total Songs</p>
+                </div>
+                <div class="icon"><i class="fas fa-music"></i></div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="small-box bg-success text-white">
+                <div class="inner">
+                    <h3 th:text="${totalClientIncome}">0</h3>
+                    <p>Total Earnings</p>
+                </div>
+                <div class="icon"><i class="fas fa-coins"></i></div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="small-box bg-warning text-white">
+                <div class="inner">
+                    <h3 th:text="${songsLastWeek}">0</h3>
+                    <p>Songs Uploaded (7 Days)</p>
+                </div>
+                <div class="icon"><i class="fas fa-clock"></i></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="card-title">Last 5 Quarters Earnings</h5>
+        </div>
+        <div class="card-body p-0">
+            <table class="table table-striped">
+                <thead><tr><th>Year</th><th>Quarter</th><th>Revenue</th></tr></thead>
+                <tbody>
+                <tr th:each="q : ${last5Quarters}">
+                <td th:text="${q.year}"></td>
+                    <td th:text="${q.quarter}"></td>
+                    <td th:text="${q.clientShare}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

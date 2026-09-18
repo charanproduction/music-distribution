@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Bank Mandate Approvals</title></head>
+<body>
+<div th:replace="~{layout :: layout(~{::content}, 'admin-compliance')}">
+    <div th:fragment="content">
+
+        <h3><i class="fas fa-university"></i> Bank Mandate Approval</h3>
+
+        <table class="table table-striped">
+            <thead class="thead-dark">
+            <tr>
+                <th>User</th>
+                <th>Uploaded On</th>
+                <th>Proof</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="m : ${mandates}">
+                <td th:text="${m.user.username}"></td>
+                <td th:text="${#temporals.format(m.uploadedOn,'dd-MMM-yyyy HH:mm')}"></td>
+                <td><a th:href="@{/files/} + ${m.mandateFilePath}" target="_blank">View</a></td>
+                <td><span class="badge bg-warning text-dark" th:text="${m.status}"></span></td>
+                <td>
+                    <form th:action="@{|/admin/compliance/mandate/${m.id}/approve|}" method="post" class="d-inline">
+                        <button class="btn btn-success btn-sm">Approve</button>
+                    </form>
+
+                    <form th:action="@{|/admin/compliance/mandate/${m.id}/reject|}"
+                          method="post" class="d-inline">
+                        <input name="reason" class="form-control form-control-sm d-inline"
+                               style="width:120px;" placeholder="Reason" required>
+                        <button class="btn btn-danger btn-sm">Reject</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+</div>
+</body>
+</html>

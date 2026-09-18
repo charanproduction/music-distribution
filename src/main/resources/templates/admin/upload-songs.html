@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Upload Songs</title>
+</head>
+<body>
+<div th:replace="~{layout :: layout(~{::content}, 'songs')}">
+    <div th:fragment="content">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3>Upload Songs</h3>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+        <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+        <div class="card card-outline card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Excel Import</h3>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">
+                    Upload an <strong>.xlsx</strong> file with columns:<br>
+                    <code>Song Name, Primary Artist, Secondary Artist, Channel Name, Lyricist, Upload Date, Release Date, Release Quarter</code>
+                </p>
+                <form th:action="@{/admin/songs/upload}" method="post" enctype="multipart/form-data" class="form-inline">
+                    <div class="form-group mr-2 mb-2">
+                        <input type="file" name="file" class="form-control-file" required>
+                    </div>
+                    <button class="btn btn-primary mb-2">
+                        <i class="fas fa-upload"></i> Import
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <h3 class="card-title">Imported Songs</h3>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>Song</th>
+                            <th>Primary Artist</th>
+                            <th>Channel</th>
+                            <th>Release Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="s : ${songs}">
+                            <td th:text="${s.songName}"></td>
+                            <td th:text="${s.primaryArtist}"></td>
+                            <td th:text="${s.channelName}"></td>
+                            <td th:text="${s.releaseDate}"></td>
+                        </tr>
+                        <tr th:if="${songs == null or #lists.isEmpty(songs)}">
+                            <td colspan="4" class="text-center text-muted p-3">
+                                No songs imported yet.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

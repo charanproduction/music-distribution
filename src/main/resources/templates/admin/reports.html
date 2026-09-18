@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Upload Reports</title>
+</head>
+<body>
+
+<div th:replace="~{layout :: layout(~{::content}, 'reports')}">
+    <div th:fragment="content">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3>Upload Monthly / Quarterly Reports</h3>
+        </div>
+
+        <!-- Upload -->
+        <div class="card card-outline card-success">
+            <div class="card-header"><h3 class="card-title">CSV Import</h3></div>
+            <div class="card-body">
+
+                <form th:action="@{/admin/reports/upload}" method="post"
+                      enctype="multipart/form-data" class="form-inline">
+
+                    <div class="form-group mr-2 mb-2">
+                        <label class="mr-2">Report Type</label>
+                        <select name="reportType" class="form-control">
+                            <option value="monthly">Monthly</option>
+                            <option value="quarterly">Quarterly</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mr-2 mb-2">
+                        <input type="file" name="file" class="form-control-file" required>
+                    </div>
+
+                    <button class="btn btn-success mb-2">
+                        <i class="fas fa-file-upload"></i> Upload
+                    </button>
+
+                </form>
+            </div>
+        </div>
+
+        <!-- History Table -->
+        <div class="card mt-4">
+            <div class="card-header"><h5 class="card-title">Uploaded Report History</h5></div>
+
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead class="thead-light">
+                    <tr>
+                        <th>Select</th>
+                        <th>File Name</th>
+                        <th>Type</th>
+                        <th>Year</th>
+                        <th>Quarter</th>
+                        <th>Uploaded Date</th>
+                        <th>Publish</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="h : ${history}">
+                        <td><input type="checkbox" name="reportIds" th:value="${h.id}"></td>
+                        <td th:text="${h.fileName}"></td>
+                        <td th:text="${h.reportType}"></td>
+                        <td th:text="${h.year}"></td>
+                        <td th:text="${h.quarter}"></td>
+                        <td th:text="${h.uploadedDate}"></td>
+
+                        <td class="text-center">
+                            <button type="button"
+                                    class="btn btn-success btn-sm publish-btn"
+                                    th:attr="data-id=${h.id}"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#publishModal">
+                                Publish
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <button class="btn btn-success btn-sm mt-3" onclick="downloadSelected()">Download</button>
+                <button class="btn btn-danger btn-sm mt-3" onclick="deleteSelected()">Delete</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Publish Modal -->
+<div th:fragment="publishModal">
+    <div class="modal fade" id="publishModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                
+                <form id="publishForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Publish Report</h5>
+                        <button type="button" class="close" data-dismiss="modal">
+                            <span>&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+                        <input type="hidden" id="reportId" name="reportId">
+
+                        <label>Channel</label>
+                        <input class="form-control" id="modalChannel" readonly>
+
+                        <label class="mt-2">Year</label>
+                        <input class="form-control" id="modalYear" readonly>
+
+                        <label class="mt-2">Quarter</label>
+                        <input class="form-control" id="modalQuarter" readonly>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" type="submit">Confirm Publish</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 🔥 SCRIPT NOW INSIDE PAGE, GLOBAL SCOPE -->
+<!-- <script>
+
+function getSelectedIds() {
+    return [...document.querySelectorAll("input[name='reportIds']:checked")]
+        .map(cb => cb.value);
+}
+
+function downloadSelected() {
+    let ids = getSelectedIds();
+    if (!ids.length) return alert("Select reports");
+    location.href = "/admin/reports/download?ids=" + ids.join(",");
+}
+
+function deleteSelected() {
+    let ids = getSelectedIds();
+    if (!ids.length) return alert("Select reports");
+    if (!confirm("Delete selected?")) return;
+
+    fetch("/admin/reports/delete?ids=" + ids.join(","), { method: "DELETE" })
+        .then(() => location.reload());
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    document.querySelectorAll(".publish-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const row = btn.closest("tr");
+            document.getElementById("reportId").value = btn.dataset.id;
+            document.getElementById("modalType").value = row.cells[2].innerText;
+            document.getElementById("modalYear").value = row.cells[3].innerText;
+            document.getElementById("modalQuarter").value = row.cells[4].innerText;
+        });
+    });
+
+    document.getElementById("publishForm").addEventListener("submit", e => {
+        e.preventDefault();
+        const id = document.getElementById("reportId").value;
+        fetch(`/admin/reports/${id}/publish`, { method: "POST" })
+            .then(() => location.reload());
+    });
+
+});
+</script> -->
+
+</body>
+</html>

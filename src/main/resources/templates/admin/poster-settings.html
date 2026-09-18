@@ -1,0 +1,22 @@
+<!-- admin/poster-settings.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div th:replace="~{layout :: layout(~{::content}, 'settings')}">
+  <div th:fragment="content">
+
+    <h3>AI Poster Feature</h3>
+
+    <form th:action="@{/admin/settings/posters}" method="post">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="enabled"
+               th:checked="${posterEnabled}">
+        <label class="form-check-label">
+          Enable AI Poster Generation for users
+        </label>
+      </div>
+      <button class="btn btn-primary mt-3">Save</button>
+    </form>
+
+  </div>
+</div>
+</html>

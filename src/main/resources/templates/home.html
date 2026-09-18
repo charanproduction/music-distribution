@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Home</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<h2>Welcome, <span th:text="${#authentication.name}"></span>!</h2>
+
+<p>You are logged in successfully.</p>
+
+<div>
+    <a th:href="@{/admin/dashboard}" 
+       sec:authorize="hasRole('ADMIN')" 
+       class="btn btn-primary">Go to Admin Dashboard</a>
+
+    <a th:href="@{/user/dashboard}" 
+       sec:authorize="hasRole('NORMAL')" 
+       class="btn btn-success">Go to User Dashboard</a>
+</div>
+
+</body>
+</html>

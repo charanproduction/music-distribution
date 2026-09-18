@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Revenue Dashboard</title>
+</head>
+<body>
+<div th:replace="layout_user :: layout(~{::content}, 'revenue')">
+
+<div th:fragment="content">
+
+    <h3 class="mb-3">My Revenue Summary</h3>
+
+    <!-- Filters -->
+    <form class="form-inline mb-3">
+        <select class="form-control" name="year">
+            <option value="">Any</option>
+            <option th:each="y : ${year}"
+                    th:value="${y}"
+                    th:text="${y}"
+                    th:selected="${y == year}">
+            </option>
+        </select>
+        <select name="quarter" class="form-control mr-2">
+            <option value="">Any Quarter</option>
+            <option th:each="q : ${quarter}" 
+                    th:value="${q}" th:text="${q}"
+                    th:selected="${quarter == q}">
+            </option>
+        </select>
+        <button class="btn btn-primary">Search 🔍</button>
+        <a class="btn btn-secondary" th:href="@{/user/revenue}">
+            <i class="fas fa-undo"></i> Reset
+        </a>
+    </form>
+
+    <!-- Revenue Table -->
+    <table class="table table-striped table-hover text-center">
+        <thead class="thead-dark">
+        <tr>
+            <th>#</th>
+            <th>Channel</th>
+            <th>Year</th>
+            <th>Quarter</th>
+            <th>Total Revenue (INR)</th>
+            <th>Payment Status</th>
+            <th>Payment Details</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="r, itr : ${revenueList}">
+            <td th:text="${itr.index + 1}"></td>
+            <td th:text="${r.channelName}"></td>
+            <td th:text="${r.year}"></td>
+            <td th:text="${r.quarter}"></td>
+            <td th:text="${#numbers.formatDecimal(r.clientShare, 0, 'COMMA', 2, 'POINT')}"></td>
+
+            <!-- Status -->
+            <td>
+                <span th:if="${r.paid}" class="badge badge-success">PAID</span>
+                <span th:if="${!r.paid}" class="badge badge-warning">PENDING</span>
+            </td>
+
+            <!-- Payment Details -->
+            <td>
+                <a href="#" class="btn btn-info btn-sm"
+                   th:if="${r.paid}"
+                   th:attr="data-channel=${r.channelName},data-year=${r.year},data-quarter=${r.quarter}"
+                   data-toggle="modal" data-target="#paymentModal">
+                    <i class="fas fa-receipt"></i>
+                </a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+
+</div>
+
+<!-- Payment Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg"><div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Payment Details</h5>
+            <button class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="payDetails">Loading...</div>
+        </div>
+    </div></div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll("[data-target='#paymentModal']").forEach(btn => {
+        btn.addEventListener("click", () => {
+            let channel = btn.dataset.channel;
+            let year = btn.dataset.year;
+            let quarter = btn.dataset.quarter;
+
+            fetch(`/user/revenue/payment?channel=${channel}&year=${year}&quarter=${quarter}`)
+                .then(res => res.text())
+                .then(html => document.getElementById("payDetails").innerHTML = html);
+        });
+    });
+});
+</script>
+
+</body>
+</html>

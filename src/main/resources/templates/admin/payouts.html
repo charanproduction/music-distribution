@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Payout Requests</title>
+</head>
+<body>
+<div th:replace="~{layout :: layout(~{::content}, 'admin-payouts')}">
+<div th:fragment="content">
+
+    <h3 class="mb-3">Payout Requests</h3>
+
+    <form method="get" class="form-inline mb-3">
+        <select name="status" class="form-select form-select-sm">
+            <option value="REQUESTED"
+                    th:selected="${selectedStatus.name() == 'REQUESTED'}">Requested</option>
+            <option value="IN_PROCESSING"
+                    th:selected="${selectedStatus.name() == 'IN_PROCESSING'}">In Processing</option>
+            <option value="COMPLETED"
+                    th:selected="${selectedStatus.name() == 'COMPLETED'}">Completed</option>
+            <option value="REJECTED"
+                    th:selected="${selectedStatus.name() == 'REJECTED'}">Rejected</option>
+        </select>
+        <button class="btn btn-primary btn-sm ms-2">Filter</button>
+    </form>
+
+    <table class="table table-striped table-hover table-sm">
+        <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Channel</th>
+            <th>User</th>
+            <th>Requested On</th>
+            <th>Amount (INR)</th>
+            <th>Status</th>
+            <th>Payment</th>
+            <th>Proof</th>
+            <th>Statement</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="p : ${requests}">
+            <td th:text="${p.id}"></td>
+            <td th:text="${p.user.channelName}"></td>
+            <td th:text="${p.user.username}"></td>
+            <td th:text="${#temporals.format(p.requestedOn,'dd-MMM-yyyy HH:mm')}"></td>
+            <td th:text="'₹ ' + ${#numbers.formatDecimal(p.amountInr,1,2)}"></td>
+            <td th:text="${p.status}"></td>
+            <td>
+                <span th:text="${p.paymentRef} ?: '-'"></span><br/>
+                <small th:text="${p.paymentDate} ?: ''"></small>
+            </td>
+            <td>
+                <a th:if="${p.proofPath != null}"
+                   th:href="@{|/admin/payouts/${p.id}/proof|}"
+                   class="btn btn-outline-secondary btn-xs" target="_blank">
+                    View
+                </a>
+            </td>
+            <td>
+                <a th:href="@{|/admin/payouts/${p.id}/statement|}"
+                   class="btn btn-outline-secondary btn-xs">
+                    PDF
+                </a>
+            </td>
+            <td>
+                <div th:if="${p.status.name() == 'REQUESTED' or p.status.name() == 'IN_PROCESSING'}">
+
+                    <form th:action="@{|/admin/payouts/${p.id}/approve|}"
+                          method="post" class="d-inline">
+                        <button class="btn btn-success btn-xs">Approve</button>
+                    </form>
+
+                    <form th:action="@{|/admin/payouts/${p.id}/reject|}"
+                          method="post" class="d-inline">
+                        <input type="text" name="reason" placeholder="Reason"
+                               class="form-control form-control-sm d-inline-block"
+                               style="max-width: 140px;">
+                        <button class="btn btn-danger btn-xs">Reject</button>
+                    </form>
+
+                    <!-- Complete payment -->
+                    <form th:action="@{|/admin/payouts/${p.id}/complete|}"
+                          method="post" enctype="multipart/form-data"
+                          class="mt-1">
+                        <input type="text" name="paymentRef"
+                               placeholder="Payment Ref"
+                               class="form-control form-control-sm mb-1">
+                        <input type="date" name="paymentDate"
+                               class="form-control form-control-sm mb-1">
+                        <input type="file" name="proofFile"
+                               class="form-control form-control-sm mb-1">
+                        <button class="btn btn-primary btn-xs">Mark as Paid</button>
+                    </form>
+
+                </div>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+</div>
+</body>
+</html>

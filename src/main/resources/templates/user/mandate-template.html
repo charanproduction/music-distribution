@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Bank Mandate Form</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.4; }
+        h2 { text-align: center; }
+        .section { margin-top: 25px; }
+    </style>
+</head>
+<body>
+
+<h2>Bank Mandate Authorization</h2>
+
+<p>I, <strong>{{ACCOUNT_HOLDER}}</strong>, hereby authorize</p>
+
+<p><strong>Charan Production Digital</strong> to:</p>
+<ul>
+    <li>Deposit royalty payments into my below account</li>
+    <li>Process payments for my distributed music earnings</li>
+</ul>
+
+<div class="section">
+    <strong>Bank Name:</strong> {{BANK_NAME}} <br/>
+    <strong>Account Number:</strong> {{ACCOUNT_NUMBER}} <br/>
+    <strong>IFSC Code:</strong> {{IFSC}} <br/>
+</div>
+
+<div class="section">
+    <p>Signature of Account Holder:</p>
+    <p>______________________________</p>
+</div>
+
+</body>
+</html>

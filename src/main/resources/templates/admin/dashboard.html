@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Use layout.html's `layout(content, activePage)` fragment -->
+<div th:replace="~{layout :: layout(~{::content}, 'admin-dashboard')}">
+
+    <!-- This fragment is passed as `content` into layout -->
+    <div th:fragment="content">
+
+        <h2 class="mb-4"><i class="fas fa-gauge"></i> Admin Dashboard</h2>
+
+        <!-- KPI CARDS -->
+        <div class="row mb-3">
+
+            <div class="col-md-3">
+                <div class="small-box bg-primary">
+                    <div class="inner">
+                        <h3 th:text="${totalSongs}">0</h3>
+                        <p>Total Songs</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-music"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="small-box bg-success">
+                    <div class="inner">
+                        <h3 th:text="${totalRevenue}">0</h3>
+                        <p>Total Revenue (Quarter)</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-money-bill"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="small-box bg-info">
+                    <div class="inner">
+                        <h3 th:text="${distributed}">0</h3>
+                        <p>Distributed</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-arrow-right"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="small-box bg-warning">
+                    <div class="inner">
+                        <h3 th:text="${profit}">0</h3>
+                        <p>Profit</p>
+                    </div>
+                    <div class="icon">
+                        <i class="fa fa-chart-line"></i>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- CHARTS -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Monthly Revenue (INR)</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="monthlyRevenueChart" height="120"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card card-info">
+                    <div class="card-header">
+                        <h3 class="card-title">Quarterly Revenue (INR)</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="quarterlyRevenueChart" height="120"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SONG LIST WITH PAGINATION & SORT -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Song List</h3>
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-striped mb-0">
+                    <thead>
+                    <tr>
+                        <th>
+                            <a th:href="@{|/admin/dashboard?page=${currentPage}&sortField=songName&sortDir=${reverseSortDir}|}">
+                                Song Name
+                            </a>
+                        </th>
+                        <th>
+                            <a th:href="@{|/admin/dashboard?page=${currentPage}&sortField=primaryArtist&sortDir=${reverseSortDir}|}">
+                                Primary Artist
+                            </a>
+                        </th>
+                        <th>Channel</th>
+                        <th>Release Date</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="s : ${songPage.content}">
+                        <td th:text="${s.songName}"></td>
+                        <td th:text="${s.primaryArtist}"></td>
+                        <td th:text="${s.channelName}"></td>
+                        <td th:text="${s.releaseDate}"></td>
+                    </tr>
+                    <tr th:if="${songPage.totalElements == 0}">
+                        <td colspan="4" class="text-center text-muted p-3">No songs found.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer">
+                <ul class="pagination mb-0">
+                    <li class="page-item"
+                        th:each="i : ${#numbers.sequence(0, songPage.totalPages - 1)}"
+                        th:classappend="${i} == ${songPage.number} ? ' active'">
+                        <a class="page-link"
+                           th:text="${i + 1}"
+                           th:href="@{|/admin/dashboard?page=${i}&sortField=${sortField}&sortDir=${sortDir}|}">
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+       <script th:inline="javascript">
+        window.MD_DASHBOARD = {
+            monthlyLabels: [[${monthlyLabels}]],
+            monthlyValues: [[${monthlyInrValues}]],
+            quarterlyLabels: [[${quarterlyLabels}]],
+            quarterlyValues: [[${quarterlyInrValues}]]
+        };
+    </script>
+       
+
+    </div>
+</div>
+
+</body>
+</html>

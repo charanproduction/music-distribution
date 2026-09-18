@@ -1,0 +1,41 @@
+<h3>Bank Payout Mandate</h3>
+
+<div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+<div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+<p class="text-muted">
+    Please download the mandate form, sign it, and upload the signed copy along with a supporting KYC document.
+</p>
+
+<a class="btn btn-outline-primary mb-3"
+   th:href="@{/user/bank/mandate/download}">
+   <i class="fas fa-file-download"></i> Download Mandate Form
+</a>
+
+<form th:action="@{/user/compliance/mandate}" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label>Signed Mandate (PDF)</label>
+        <input type="file" name="mandateFile" class="form-control" required>
+    </div>
+    <div class="form-group mt-2">
+        <label>KYC Document (Cancelled cheque / passbook)</label>
+        <input type="file" name="kycFile" class="form-control">
+    </div>
+    <button class="btn btn-success mt-3">Upload Mandate</button>
+</form>
+
+<hr>
+
+<div th:if="${latestMandate != null}">
+    <h5>Latest Submission</h5>
+    <p>Status:
+        <span class="badge"
+              th:text="${latestMandate.status}"
+              th:classappend="${latestMandate.status.name() == 'APPROVED' ? ' bg-success' :
+                              latestMandate.status.name() == 'REJECTED' ? ' bg-danger' :
+                              ' bg-warning'}">
+        </span>
+    </p>
+    <p th:if="${latestMandate.reviewerComment}"
+       th:text="'Admin comment: ' + ${latestMandate.reviewerComment}"></p>
+</div>

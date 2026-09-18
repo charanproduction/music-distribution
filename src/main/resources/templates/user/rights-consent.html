@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Rights Consent</title>
+</head>
+<body>
+	<div
+		th:replace="~{layout_user :: layout(~{::content}, 'rights-consent')}">
+		<div th:fragment="content">
+
+			<div class="content-header">
+				<div class="container-fluid">
+					<h3 class="mb-3">Digital Rights Consent Agreement</h3>
+
+					<div th:if="${success}" class="alert alert-success"
+						th:text="${success}"></div>
+					<div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+				</div>
+			</div>
+
+			<section class="content">
+				<div class="container-fluid">
+
+					<div class="card card-outline card-info">
+						<div class="card-header">
+							<h5 class="card-title mb-0">Step 1: Review Agreement</h5>
+						</div>
+						<div class="card-body">
+
+							<p class="text-muted small">
+								This agreement grants <strong>Charan Production Digital</strong>
+								the right to distribute your music catalog to digital streaming
+								platforms and handle monetization on your behalf.
+							</p>
+
+							<a class="btn btn-outline-primary btn-sm"
+								th:href="@{/user/compliance/rights/download}"> <i
+								class="fas fa-file-download mr-1"></i> Download Agreement (PDF)
+							</a>
+						</div>
+					</div>
+
+					<div class="card card-outline card-success mt-3">
+						<div class="card-header">
+							<h5 class="card-title mb-0">Step 2: Provide Consent</h5>
+						</div>
+						<div class="card-body">
+
+							<form th:action="@{/user/compliance/rights}" method="post"
+								enctype="multipart/form-data" id="rightsForm">
+
+								<div class="form-check mb-3">
+									<input type="checkbox" class="form-check-input" id="agreeChk"
+										name="agreed" required> <label
+										class="form-check-label" for="agreeChk"> I have read
+										and agree to the Music Distribution Agreement, and I confirm
+										that I own or control the rights to the content I submit. </label>
+								</div>
+
+								<div class="mb-3">
+									<label class="form-label">Full Legal Name (Digital
+										Signature)</label> <input type="text" name="fullName"
+										class="form-control" required>
+								</div>
+
+								<div class="mb-3">
+									<label class="form-label">Upload Signed Agreement
+										(Optional)</label> <input type="file" name="file" class="form-control"
+										accept="application/pdf,image/*"> <small
+										class="text-muted"> If you don't upload, the system
+										will generate a signed PDF version for you. </small>
+								</div>
+
+								<button class="btn btn-success">
+									<i class="fas fa-check mr-1"></i> Submit Consent
+								</button>
+								<a th:href="@{/user/compliance}" class="btn btn-secondary">Back</a>
+							</form>
+
+						</div>
+					</div>
+
+					<!-- History -->
+					<div class="card mt-4">
+						<div class="card-header">
+							<h5 class="card-title mb-0">Consent History</h5>
+						</div>
+						<div class="card-body p-0">
+							<table class="table table-striped mb-0">
+								<thead class="thead-light">
+									<tr>
+										<th>#</th>
+										<th>Submitted On</th>
+										<th>Status</th>
+										<th>Admin Comment</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr th:if="${consents == null or #lists.isEmpty(consents)}">
+										<td colspan="4" class="text-center text-muted p-3">No
+											consent submitted yet.</td>
+									</tr>
+									<tr th:each="c, i : ${consents}">
+										<td th:text="${i.index + 1}"></td>
+										<td
+											th:text="${#temporals.format(c.submittedAt, 'dd-MMM-yyyy HH:mm')}"></td>
+										<td><span class="badge"
+											th:classappend="${c.status.name() == 'APPROVED'} ? ' bg-success' :
+                                                          ${c.status.name() == 'REJECTED'} ? ' bg-danger' :
+                                                          ' bg-warning text-dark'"
+											th:text="${c.status}"> </span></td>
+										<td th:text="${c.adminComment}">-</td>
+									</tr>
+									<tr th:each="c : ${consents}">
+										<td
+											th:text="${#temporals.format(c.submittedOn,'dd MMM yyyy')}"></td>
+										<td th:text="${c.status}"></td>
+										<td><a th:if="${c.approvedPdf != null}"
+											th:href="@{/user/compliance/rights/download/{id}(id=${c.id})}"
+											class="badge bg-success">Download Approved PDF</a> <span
+											th:unless="${c.approvedPdf != null}" class="badge bg-warning">Pending</span>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+
+				</div>
+			</section>
+
+		</div>
+	</div>
+
+	<script>
+		document.getElementById("rightsForm").addEventListener("submit",
+				function(e) {
+					if (!document.getElementById("agreeChk").checked) {
+						alert("You must agree before submitting.");
+						e.preventDefault();
+					}
+				});
+	</script>
+
+</body>
+</html>

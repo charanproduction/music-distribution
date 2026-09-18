@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="msg">
+
+    <div th:if="${param.registered}" class="alert alert-success">
+        Registration successful! Please wait for admin approval.
+    </div>
+
+    <div th:if="${param.approved}" class="alert alert-success">
+        User approved successfully!
+    </div>
+
+    <div th:if="${param.logout}" class="alert alert-info">
+        You have been logged out.
+    </div>
+
+</div>
+</body>
+</html>

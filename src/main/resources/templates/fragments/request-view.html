@@ -1,0 +1,22 @@
+<div th:fragment="view">
+
+    <p><strong>Song:</strong> <span th:text="${req.songName}"></span></p>
+    <p><strong>Primary Artist:</strong> <span th:text="${req.primaryArtist}"></span></p>
+    <p><strong>Album:</strong> <span th:text="${req.albumName}"></span></p>
+    <p><strong>Status:</strong> <span th:text="${req.status}"></span></p>
+
+    <hr>
+
+    <h6>Comments:</h6>
+    <div th:if="${#lists.isEmpty(req.comments)}" class="text-muted small">
+        No comments yet.
+    </div>
+
+    <div th:each="c : ${req.comments}" class="border rounded p-2 mb-2 bg-light">
+        <div class="fw-semibold small" th:text="${c.authorName}"></div>
+        <div th:text="${c.comment}"></div>
+        <div class="text-muted small"
+             th:text="${#temporals.format(c.createdAt, 'dd MMM yyyy HH:mm')}"></div>
+    </div>
+
+</div>

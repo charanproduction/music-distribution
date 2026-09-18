@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Bank Mandate</title>
+</head>
+<body>
+<div th:replace="~{layout_user :: layout(~{::content}, 'bank-mandate')}">
+    <div th:fragment="content">
+
+        <div class="content-header">
+            <div class="container-fluid">
+                <h3 class="mb-3">Bank Mandate (INR Payouts)</h3>
+
+                <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+                <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+            </div>
+        </div>
+
+        <section class="content">
+            <div class="container-fluid">
+
+                <div class="card card-outline card-info">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Step 1: Download Mandate Form</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted small">
+                            Download the mandate form, fill it, sign it and get it stamped by your bank (if required).
+                        </p>
+                        <a class="btn btn-outline-primary"
+                           th:href="@{/user/compliance/mandate/download}">
+                            <i class="fas fa-file-download mr-1"></i> Download Mandate Form (PDF)
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card card-outline card-success mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Step 2: Upload Signed Mandate</h5>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/user/compliance/mandate/upload}" method="post"
+                              enctype="multipart/form-data">
+
+                            <div class="mb-3">
+                                <label class="form-label">Upload Signed Mandate (PDF / Image)</label>
+                                <input type="file" name="file" class="form-control" required>
+                                <small class="text-muted">
+                                    Accepted formats: PDF, JPG, PNG. Max size as per policy.
+                                </small>
+                            </div>
+
+                            <button class="btn btn-success">
+                                <i class="fas fa-upload mr-1"></i> Upload Mandate
+                            </button>
+                            <a th:href="@{/user/compliance}" class="btn btn-secondary">Back</a>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- History -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Mandate History</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-striped mb-0">
+                            <thead class="thead-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Uploaded On</th>
+                                <th>Status</th>
+                                <th>Admin Comment</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:if="${mandates == null or #lists.isEmpty(mandates)}">
+                                <td colspan="4" class="text-center text-muted p-3">
+                                    No mandate uploaded yet.
+                                </td>
+                            </tr>
+                            <tr th:each="m, i : ${mandates}">
+                                <td th:text="${i.index + 1}"></td>
+                                <td th:text="${#temporals.format(m.uploadedOn, 'dd-MMM-yyyy HH:mm')}"></td>
+                                <td>
+                                    <span class="badge"
+                                          th:classappend="${m.status.name() == 'APPROVED'} ? ' bg-success' :
+                                                          ${m.status.name() == 'REJECTED'} ? ' bg-danger' :
+                                                          ' bg-warning text-dark'"
+                                          th:text="${m.status}">
+                                    </span>
+                                </td>
+                                <td th:text="${m.adminComment}">-</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </div>
+</div>
+</body>
+</html>

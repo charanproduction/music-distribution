@@ -1,0 +1,8 @@
+<div th:fragment="details">
+    <table class="table table-bordered">
+        <tr><th>Payment Date</th><td th:text="${details.paymentDate}"></td></tr>
+        <tr><th>Amount Paid</th><td th:text="${details.amount}"></td></tr>
+        <tr><th>Reference No</th><td th:text="${details.referenceNo}"></td></tr>
+        <tr><th>Bank</th><td th:text="${details.bankName}"></td></tr>
+    </table>
+</div>

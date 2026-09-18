@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>User Compliance</title>
+</head>
+<body>
+<div th:replace="~{layout_user :: layout(~{::content}, 'compliance')}">
+    <div th:fragment="content">
+
+        <div class="content-header">
+            <div class="container-fluid">
+                <h3 class="mb-3">Compliance Center</h3>
+                <p class="text-muted">
+                    Complete the following steps to become payout-eligible.
+                </p>
+            </div>
+        </div>
+
+        <section class="content">
+            <div class="container-fluid">
+
+                <!-- Status row -->
+                <div class="row">
+
+                    <!-- Bank Mandate -->
+                    <div class="col-md-6">
+                        <div class="card card-outline"
+                             th:classappend="${bankApproved} ? ' card-success' : ' card-warning'">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-university mr-1"></i> Bank Mandate
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p>
+                                    Status:
+                                    <span th:if="${bankApproved}" class="badge bg-success">Approved</span>
+                                    <span th:if="${!bankApproved}" class="badge bg-warning text-dark">Pending / Required</span>
+                                </p>
+
+                                <p class="text-muted small mb-2">
+                                    Upload your bank mandate form so we can process payouts to your primary account (INR only).
+                                </p>
+
+                                <a th:href="@{/user/compliance/mandate}" class="btn btn-sm btn-primary">
+                                    Manage Bank Mandate
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rights Consent -->
+                    <div class="col-md-6">
+                        <div class="card card-outline"
+                             th:classappend="${rightsApproved} ? ' card-success' : ' card-warning'">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-file-contract mr-1"></i> Rights Consent
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p>
+                                    Status:
+                                    <span th:if="${rightsApproved}" class="badge bg-success">Approved</span>
+                                    <span th:if="${!rightsApproved}" class="badge bg-warning text-dark">Pending / Required</span>
+                                </p>
+                                <p class="text-muted small mb-2">
+                                    Provide your consent so Charan Production Digital can legally distribute and monetize your catalog.
+                                </p>
+                                <a th:href="@{/user/compliance/rights}" class="btn btn-sm btn-primary">
+                                    Review & Submit Consent
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info box -->
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Payout requests will only be enabled once both <strong>Bank Mandate</strong> and
+                    <strong>Rights Consent</strong> are approved by admin.
+                </div>
+
+            </div>
+        </section>
+
+    </div>
+</div>
+</body>
+</html>

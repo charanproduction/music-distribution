@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body th:replace="layout_user :: layout(~{::content}, 'upload')">
+
+<div th:fragment="content">
+
+    <h3 class="fw-bold mb-3"><i class="fas fa-upload text-primary"></i> Upload Song</h3>
+
+    <div class="card">
+        <div class="card-body">
+
+            <form th:action="@{/user/requests}" method="post" enctype="multipart/form-data">
+
+                <div class="form-group">
+                    <label>Song Name</label>
+                    <input type="text" name="songName" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Album Name</label>
+                    <input type="text" name="albumName" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Primary Artist</label>
+                    <input type="text" name="primaryArtist" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>Secondary Artist</label>
+                    <input type="text" name="secondaryArtist" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label>Lyricist</label>
+                    <input type="text" name="lyricist" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label>Music Director</label>
+                    <input type="text" name="musicDirector" class="form-control">
+                </div>
+                 <div class="form-group">
+                    <label>Song Language</label>
+                    <input type="text" name="songLanguage" class="form-control">
+                </div>
+                 <div class="form-group">
+                    <label>Genre</label>
+                    <input type="text" name="genre" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label>Release Date</label>
+                    <input type="date" name="releaseDate" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label>Attachments (audio, cover art, docs)</label>
+                    <input type="file" name="files" class="form-control" multiple>
+                </div>
+
+                <button class="btn btn-success btn-block mt-3">
+                    <i class="fas fa-paper-plane"></i> Submit Request
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

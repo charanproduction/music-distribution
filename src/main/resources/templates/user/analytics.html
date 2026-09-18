@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Channel Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div th:replace="~{layout_user :: layout(~{::content}, 'analytics')}">
+
+<div th:fragment="content">
+
+    <section class="content-header mb-3">
+        <h3>
+            <i class="fas fa-chart-line"></i>
+            Channel Analytics
+            <small class="text-muted" th:text="${channelName}"></small>
+        </h3>
+    </section>
+
+    <!-- TOP SUMMARY CARDS -->
+    <section class="content">
+        <div class="row">
+
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-info">
+                    <div class="inner">
+                        <h4 th:text="${#numbers.formatDecimal(summary.totalRevenueInr,0,'COMMA',2,'POINT')}">0</h4>
+                        <p>Total Revenue (INR)</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-rupee-sign"></i></div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-success">
+                    <div class="inner">
+                        <h4 th:text="${#numbers.formatDecimal(summary.paidInr,0,'COMMA',2,'POINT')}">0</h4>
+                        <p>Paid</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-check-circle"></i></div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-warning">
+                    <div class="inner">
+                        <h4 th:text="${#numbers.formatDecimal(summary.pendingInr,0,'COMMA',2,'POINT')}">0</h4>
+                        <p>Pending</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-hourglass-half"></i></div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-6">
+                <div class="small-box bg-secondary">
+                    <div class="inner">
+                        <h4 th:text="${summary.totalSongs}">0</h4>
+                        <p>Total Songs</p>
+                    </div>
+                    <div class="icon"><i class="fas fa-music"></i></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ROW: TREND + COUNTRY -->
+        <div class="row">
+
+            <!-- Quarterly Revenue Trend -->
+            <div class="col-md-8">
+                <div class="card card-outline card-primary">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-chart-area"></i> Quarterly Revenue Trend
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="trendChart" height="120"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Country-wise Revenue -->
+            <div class="col-md-4">
+                <div class="card card-outline card-success">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-globe"></i> Country-wise Revenue
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="countryChart" height="220"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TOP SONGS -->
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <div class="card card-outline card-info">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-music"></i> Top Performing Songs
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-striped mb-0">
+                            <thead class="thead-light">
+                            <tr>
+                                <th>#</th>
+                                <th>Track Title</th>
+                                <th>Artist</th>
+                                <th>Revenue (INR)</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="s, idx : ${topSongs}">
+                                <td th:text="${idx.index + 1}">1</td>
+                                <td th:text="${s.trackTitle}">Track</td>
+                                <td th:text="${s.artistName}">Artist</td>
+                                <td th:text="${#numbers.formatDecimal(s.revenueInr,0,'COMMA',2,'POINT')}">0</td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(topSongs)}">
+                                <td colspan="4" class="text-center text-muted py-3">
+                                    No song revenue data available.
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+</div>
+</div>
+
+<script th:inline="javascript">
+    // Prepare JS arrays from Thymeleaf
+
+    /*<![CDATA[*/
+
+    const trendLabels = [[${trendLabels}]];
+    const trendValues =  [[${trendValues}]];
+
+    const countryLabels =  [[${countryLabels}]];
+    const countryValues =  [[${countryValues}]];
+
+    /*]]>*/
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        // Trend Chart
+        const ctxTrend = document.getElementById('trendChart').getContext('2d');
+        new Chart(ctxTrend, {
+            type: 'line',
+            data: {
+                labels: trendLabels,
+                datasets: [{
+                    label: 'Revenue (INR)',
+                    data: trendValues,
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.2
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // Country Pie Chart
+        const ctxCountry = document.getElementById('countryChart').getContext('2d');
+        new Chart(ctxCountry, {
+            type: 'pie',
+            data: {
+                labels: countryLabels,
+                datasets: [{
+                    data: countryValues
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+
+    });
+</script>
+
+</body>
+</html>

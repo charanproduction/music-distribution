@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Bank Mandate Review</title>
+</head>
+<body>
+<div th:replace="~{layout :: layout(~{::content}, 'mandates')}">
+    <div th:fragment="content">
+
+        <div class="content-header">
+            <div class="container-fluid">
+                <h3 class="mb-3">Bank Mandate Review</h3>
+
+                <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+                <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+            </div>
+        </div>
+
+        <section class="content">
+            <div class="container-fluid">
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Pending & Recent Mandates</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-striped mb-0">
+                            <thead class="thead-light">
+                            <tr>
+                                <th>#</th>
+                                <th>User</th>
+                                <th>Channel</th>
+                                <th>Uploaded On</th>
+                                <th>Status</th>
+                                <th>View</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:if="${mandates == null or #lists.isEmpty(mandates)}">
+                                <td colspan="7" class="text-center text-muted p-3">
+                                    No mandate submissions found.
+                                </td>
+                            </tr>
+                            <tr th:each="m, i : ${mandates}">
+                                <td th:text="${i.index + 1}"></td>
+                                <td th:text="${m.user.username}"></td>
+                                <td th:text="${m.user.channelName}"></td>
+                                <td th:text="${#temporals.format(m.uploadedOn,'dd-MMM-yyyy HH:mm')}"></td>
+                                <td th:text="${m.status}"></td>
+                                <td>
+                                    <a th:href="@{|/admin/compliance/mandate/${m.id}/download|}"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-file-download"></i>
+                                    </a>
+                                </td>
+                                <td>
+                                    <form th:action="@{|/admin/compliance/mandate/${m.id}/approve|}"
+                                          method="post" class="d-inline">
+                                        <button class="btn btn-sm btn-success"
+                                                th:disabled="${m.status.name() == 'APPROVED'}">
+                                            Approve
+                                        </button>
+                                    </form>
+                                    <form th:action="@{|/admin/compliance/mandate/${m.id}/reject|}"
+                                          method="post" class="d-inline">
+                                        <button class="btn btn-sm btn-danger"
+                                                th:disabled="${m.status.name() == 'REJECTED'}">
+                                            Reject
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </div>
+</div>
+</body>
+</html>

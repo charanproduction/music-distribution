@@ -1,0 +1,25 @@
+<tbody>
+<tr th:each="req : ${requests}">
+    <td th:text="${req.id}"></td>
+    <td th:text="${req.songName}"></td>
+    <td th:text="${req.releaseDate}"></td>
+
+    <td>
+        <span class="badge"
+              th:classappend="${req.status.name() == 'ACTION_REQUIRED' ? 'badge-danger' : 
+                              req.status.name() == 'PENDING_REVIEW' ? 'badge-warning' :
+                              req.status.name() == 'UNDER_REVIEW' ? 'badge-info' :
+                              req.status.name() == 'READY_FOR_PUBLISHING' ? 'badge-primary' :
+                              req.status.name() == 'PUBLISHED'} ? 'badge-success' : 'badge-secondary'}"
+              th:text="${req.status}">
+        </span>
+    </td>
+
+    <td>
+        <button class="btn btn-sm btn-outline-primary" 
+                th:onclick="'viewRequest(' + ${req.id} + ')'">
+            View
+        </button>
+    </td>
+</tr>
+</tbody>

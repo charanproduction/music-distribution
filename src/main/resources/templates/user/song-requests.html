@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title th:fragment="pageTitle">Song Requests</title>
+<style type="text/css">
+.chat-bubble-admin {
+    background: #007bff;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 12px;
+    margin: 6px 0;
+    max-width: 75%;
+    align-self: flex-end;
+    margin-left: auto;
+}
+
+.chat-bubble-user {
+    background: #e4e6eb;
+    color: #111;
+    padding: 8px 12px;
+    border-radius: 12px;
+    margin: 6px 0;
+    max-width: 75%;
+    align-self: flex-start;
+}
+
+.chat-meta {
+    font-size: 0.75rem;
+    opacity: 0.7;
+    margin-top: 4px;
+}
+</style>
+</head>
+<body>
+
+	<div th:replace="~{layout_user :: layout(~{::content}, 'requests')}">
+
+		<div th:fragment="content">
+
+			<h2 class="mb-4">
+				<i class="fas fa-music"></i> Upload a Song & Requests
+			</h2>
+
+			<!-- UPLOAD FORM -->
+			<!--  <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">New Song Request</h3>
+            </div>
+            <div class="card-body">
+                <form th:action="@{/user/songs/upload}" method="post" enctype="multipart/form-data" class="row">
+
+                    <div class="form-group col-md-6">
+                        <label>Song Name</label>
+                        <input type="text" name="songName" class="form-control" required>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label>Primary Artist</label>
+                        <input type="text" name="primaryArtist" class="form-control" required>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Secondary Artist</label>
+                        <input type="text" name="secondaryArtist" class="form-control" required>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label>Lyricist</label>
+                        <input type="text" name="lyricist" class="form-control">
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label>Music Director</label>
+                        <input type="text" name="musicDirector" class="form-control">
+                    </div>
+                    
+                    <div class="form-group col-md-6">
+                        <label>Song Language</label>
+                        <input type="text" name="songLanguage" class="form-control">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Genre</label>
+                        <input type="text" name="genre" class="form-control">
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label>Album / Release</label>
+                        <input type="text" name="albumName" class="form-control">
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label>Release Date</label>
+                        <input type="date" name="releaseDate" class="form-control" required>
+                    </div>
+
+                    <div class="form-group col-12">
+                        <label>Attachments (audio, cover, docs)</label>
+                        <input type="file" name="files" class="form-control" multiple>
+                        <small class="text-muted">Files will be stored under a channel-specific folder.</small>
+                    </div>
+
+                    <div class="col-12 text-right">
+                        <button class="btn btn-success">
+                            <i class="fas fa-cloud-upload-alt"></i> Submit Request
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div> -->
+
+			<!-- REQUESTS TABLE -->
+			<div class="card">
+				<div class="card-header">
+					<h3 class="card-title">My Song Requests</h3>
+				</div>
+
+				<div class="card-body p-0">
+					<table class="table table-striped mb-0">
+						<thead class="thead-light">
+							<tr>
+								<th>ID</th>
+								<th>Song</th>
+								<th>Uploaded</th>
+								<th>Release Date</th>
+								<th>Status</th>
+								<th>Latest Comment</th>
+								<th>Actions</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr
+								th:if="${requestPage == null or requestPage.content.isEmpty()}">
+								<td colspan="7" class="text-center text-muted p-3">No
+									requests yet.</td>
+							</tr>
+							<tr th:each="r : ${requestPage.content}">
+								<td><a href="#" data-toggle="modal"
+									data-target="#viewModal" th:attr="data-id=${r.id}"
+									class="link-primary js-view-request"> #<span
+										th:text="${r.id}"></span>
+								</a></td>
+								<td th:text="${r.songName}"></td>
+								<td
+									th:text="${#temporals.format(r.createdDate, 'dd-MMM-yyyy HH:mm')}"></td>
+								<td th:text="${r.releaseDate}"></td>
+								<td><span class="badge"
+									th:classappend="${r.status.name() == 'PENDING_REVIEW' ? ' badge-warning' :
+                                                  r.status.name() == 'ACTION_REQUIRED' ? ' badge-danger' :
+                                                  r.status.name() == 'MARKED_FOR_REVIEW' ? ' badge-info' :
+                                                  r.status.name() == 'REVIEW_COMPLETED' ? ' badge-success' :
+                                                  r.status.name() == 'APPROVED' ? ' badge-success' :
+                                                  r.status.name() == 'COMPLETED' ? ' badge-success' :
+                                                  r.status.name() == 'CANCELLED' ? ' badge-secondary' :
+                                                  ' badge-dark'}"
+									th:text="${r.status}"></span></td>
+								<td th:text="${r.comments}">-</td>
+								<td>
+									<div class="btn-group btn-group-sm">
+
+										<th:block th:with="status=${r.status.name()}">
+
+											<!-- EDIT allowed -->
+											<button type="button" class="btn btn-outline-primary"
+												th:if="${#lists.contains({'PENDING_REVIEW','ACTION_REQUIRED','MARKED_FOR_REVIEW'}, status)}"
+												data-toggle="modal" data-target="#editModal"
+												th:attr="data-id=${r.id}">
+												<i class="fas fa-edit"></i>
+											</button>
+
+											<!-- Mark for Review -->
+											<button type="button" class="btn btn-outline-info"
+												th:if="${#lists.contains({'PENDING_REVIEW','ACTION_REQUIRED'}, status)}"
+												data-toggle="modal" data-target="#markReviewModal"
+												th:attr="data-id=${r.id}">
+												<i class="fas fa-paper-plane"></i>
+											</button>
+
+											<!-- Cancel -->
+											<form th:action="@{|/user/songs/requests/${r.id}/cancel|}"
+												method="post" class="d-inline"
+												th:if="${#lists.contains({'PENDING_REVIEW','ACTION_REQUIRED','MARKED_FOR_REVIEW'}, status)}">
+												<button class="btn btn-outline-warning">
+													<i class="fas fa-ban"></i>
+												</button>
+											</form>
+
+											<!-- Delete -->
+											<form th:action="@{|/user/songs/requests/${r.id}/delete|}"
+												method="post" class="d-inline"
+												th:if="${#lists.contains({'PENDING_REVIEW','CANCELLED'}, status)}">
+												<button class="btn btn-outline-danger">
+													<i class="fas fa-trash"></i>
+												</button>
+											</form>
+										</th:block>
+
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+
+					<!-- Pagination -->
+					<nav th:if="${requestPage != null and requestPage.totalPages > 1}">
+						<ul class="pagination justify-content-center mt-3">
+							<li class="page-item"
+								th:classappend="${requestPage.number == 0} ? 'disabled'"><a
+								class="page-link"
+								th:href="@{|/user/songs/requests?page=${requestPage.number - 1}|}">
+									Previous </a></li>
+							<li class="page-item"
+								th:each="i : ${#numbers.sequence(0, requestPage.totalPages-1)}"
+								th:classappend="${i == requestPage.number} ? 'active'"><a
+								class="page-link" th:text="${i+1}"
+								th:href="@{|/user/songs/requests?page=${i}|}">1</a></li>
+							<li class="page-item"
+								th:classappend="${requestPage.number == requestPage.totalPages-1} ? 'disabled'">
+								<a class="page-link"
+								th:href="@{|/user/songs/requests?page=${requestPage.number + 1}|}">
+									Next </a>
+							</li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+
+			<!-- VIEW MODAL (could show comments via separate controller; for now simple) -->
+			<div class="modal fade" id="viewModal" tabindex="-1">
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+
+						<div class="modal-header">
+							<h5 class="modal-title">
+								<i class="fas fa-comments"></i> Conversation
+							</h5>
+							<button class="close" data-dismiss="modal">
+								<span>&times;</span>
+							</button>
+						</div>
+
+						<div class="modal-body p-0">
+
+							<!-- Request Details -->
+							<div id="reqDetails" class="p-3 border-bottom bg-light"></div>
+
+							<!-- Chat History -->
+							<div id="chatBox" class="p-3"
+								style="max-height: 350px; overflow-y: auto; background: #f7f7f7;">
+							</div>
+
+						</div>
+
+						<div class="modal-footer d-flex w-100">
+							<input id="chatInput" type="text" class="form-control mr-2"
+								placeholder="Write a message & hit Enter...">
+							<button id="sendChatBtn" class="btn btn-primary">
+								Send <i class="fas fa-paper-plane ml-1"></i>
+							</button>
+						</div>
+
+					</div>
+				</div>
+			</div>
+
+			<!-- EDIT MODAL -->
+			<div class="modal fade" id="editModal" tabindex="-1" role="dialog">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<form method="post" id="editForm">
+							<div class="modal-header">
+								<h5 class="modal-title">Edit Request</h5>
+								<button type="button" class="close" data-dismiss="modal">
+									<span>&times;</span>
+								</button>
+							</div>
+
+							<div class="modal-body">
+
+								<input type="hidden" name="id" id="edit-id">
+
+								<div class="form-group">
+									<label>Song Name</label> <input type="text" id="edit-songName"
+										name="songName" class="form-control" required>
+								</div>
+
+								<div class="form-group">
+									<label>Primary Artist</label> <input type="text"
+										id="edit-primaryArtist" name="primaryArtist"
+										class="form-control" required>
+								</div>
+
+								<div class="form-group">
+									<label>Secondary Artist</label> <input type="text"
+										id="edit-secondaryArtist" name="secondaryArtist"
+										class="form-control">
+								</div>
+
+								<div class="form-group">
+									<label>Lyricist</label> <input type="text" id="edit-lyricist"
+										name="lyricist" class="form-control">
+								</div>
+
+								<div class="form-group">
+									<label>Music Director</label> <input type="text"
+										id="edit-musicDirector" name="musicDirector"
+										class="form-control">
+								</div>
+
+								<div class="form-group">
+									<label>Album</label> <input type="text" id="edit-albumName"
+										name="albumName" class="form-control">
+								</div>
+
+								<div class="form-group">
+									<label>Release Date</label> <input type="date"
+										id="edit-releaseDate" name="releaseDate" class="form-control"
+										required>
+								</div>
+
+							</div>
+
+							<div class="modal-footer">
+								<button class="btn btn-primary">
+									<i class="fas fa-save"></i> Save Changes
+								</button>
+							</div>
+
+						</form>
+					</div>
+				</div>
+			</div>
+
+			<!-- MARK-FOR-REVIEW MODAL -->
+			<div class="modal fade" id="markReviewModal" tabindex="-1"
+				role="dialog">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<form method="post" id="markReviewForm">
+							<div class="modal-header">
+								<h5 class="modal-title">Mark for Review</h5>
+								<button type="button" class="close" data-dismiss="modal">
+									<span>&times;</span>
+								</button>
+							</div>
+							<div class="modal-body">
+								<div class="form-group">
+									<label>Your Comment</label>
+									<textarea name="comment" class="form-control" rows="3"
+										placeholder="Describe what you fixed or updated"></textarea>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button class="btn btn-info">
+									<i class="fas fa-paper-plane"></i> Submit for Review
+								</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+
+			<script th:inline="javascript">
+				document.addEventListener("DOMContentLoaded", function() {
+
+					$(".js-view-request").click(
+							function() {
+								const id = $(this).data("id");
+
+								$("#viewModal .modal-body").load(
+										"/user/songs/requests/" + id);
+							});
+
+					$('#editModal').on('show.bs.modal', function (event) {
+					    const id = $(event.relatedTarget).data('id');
+					    $('#editForm').attr('action', '/user/songs/requests/' + id + '/edit');
+
+					    // load existing request info
+					    fetch('/user/songs/requests/' + id + '/details')
+					        .then(res => res.json())
+					        .then(data => {
+					            $('#edit-id').val(data.id);
+					            $('#edit-songName').val(data.songName);
+					            $('#edit-primaryArtist').val(data.primaryArtist);
+					            $('#edit-secondaryArtist').val(data.secondaryArtist);
+					            $('#edit-lyricist').val(data.lyricist);
+					            $('#edit-musicDirector').val(data.musicDirector);
+					            $('#edit-albumName').val(data.albumName);
+					            $('#edit-releaseDate').val(data.releaseDate);
+					        });
+					});
+
+					$('#markReviewModal').on(
+							'show.bs.modal',
+							function(e) {
+								const id = $(e.relatedTarget).data('id');
+								$('#markReviewForm').attr(
+										'action',
+										'/user/songs/requests/' + id
+												+ '/mark-for-review');
+							});
+				});
+				
+				let currentRequestId = null;
+
+				$(document).on("click", ".js-view-request", function () {
+				    currentRequestId = $(this).data('id');
+				    loadComments();
+				});
+
+				// Load comments
+				function loadComments() {
+				    fetch(`/user/songs/${currentRequestId}/comments`)
+				        .then(res => res.json())
+				        .then(data => {
+				            const chat = $('#chatBox');
+				            chat.empty();
+
+				            data.forEach(msg => {
+				                let bubbleClass = (msg.authorRole === "ADMIN")
+				                    ? "chat-bubble-admin"
+				                    : "chat-bubble-user";
+
+				                chat.append(`
+				                    <div class="${bubbleClass}">
+				                        <div>${msg.comment}</div>
+				                        <div class="chat-meta">
+				                            ${msg.authorName} · ${new Date(msg.createdAt).toLocaleString()}
+				                        </div>
+				                    </div>
+				                `);
+				            });
+
+				            chat.scrollTop(chat.prop("scrollHeight"));
+				        });
+				}
+
+				// Send Comment
+				$('#sendChatBtn').click(function () {
+				    const message = $('#chatInput').val();
+				    if (!message.trim()) return;
+
+				    fetch(`/user/songs/${currentRequestId}/comment`, {
+				        method: 'POST',
+				        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+				        body: "message=" + encodeURIComponent(message)
+				    }).then(() => {
+				        $('#chatInput').val('');
+				        loadComments();
+				    });
+				});
+				$('#chatInput').keypress(function (e) {
+				    if (e.which === 13) { // Enter key
+				        $('#sendChatBtn').click();
+				        return false;
+				    }
+				});
+			</script>
+
+		</div>
+
+	</div>
+
+</body>
+</html>

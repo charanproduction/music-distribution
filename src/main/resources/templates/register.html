@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Register | Music Distribution</title>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/css/adminlte.min.css"/>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body class="hold-transition register-page">
+
+<div class="register-box">
+    <div class="register-logo">
+        <b>🎧 Music</b> Distribution
+    </div>
+
+    <div class="card">
+        <div class="card-body register-card-body">
+            <p class="login-box-msg">Create your account</p>
+
+            <form th:action="@{/saveUser}" th:object="${user}" method="post">
+
+                <div class="input-group mb-3">
+                    <input type="text" th:field="*{username}" class="form-control" placeholder="Username" required>
+                    <div class="input-group-append">
+                        <div class="input-group-text"><i class="fas fa-user"></i></div>
+                    </div>
+                </div>
+
+                <div class="input-group mb-3">
+                    <input type="email" th:field="*{email}" class="form-control" placeholder="Email" required>
+                    <div class="input-group-append">
+                        <div class="input-group-text"><i class="fas fa-envelope"></i></div>
+                    </div>
+                </div>
+
+                <div class="input-group mb-3">
+                    <input type="text" th:field="*{contactNo}" class="form-control" placeholder="Contact No">
+                    <div class="input-group-append">
+                        <div class="input-group-text"><i class="fas fa-phone"></i></div>
+                    </div>
+                </div>
+
+                <div class="input-group mb-3">
+                    <input type="text" th:field="*{channelName}" class="form-control" placeholder="Channel Name">
+                    <div class="input-group-append">
+                        <div class="input-group-text"><i class="fas fa-broadcast-tower"></i></div>
+                    </div>
+                </div>
+
+                <div class="input-group mb-3">
+                    <input type="password" th:field="*{password}" class="form-control" placeholder="Password" required>
+                    <div class="input-group-append">
+                        <div class="input-group-text"><i class="fas fa-lock"></i></div>
+                    </div>
+                </div>
+
+                <p class="text-muted mb-2">
+                    After registration, an admin must approve your account before you can log in.
+                </p>
+
+                <div class="row">
+                    <div class="col-6">
+                        <a th:href="@{/login}" class="btn btn-secondary btn-block">Back to Login</a>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn btn-primary btn-block">Register</button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.4/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@3.2/dist/js/adminlte.min.js"></script>
+</body>
+</html>

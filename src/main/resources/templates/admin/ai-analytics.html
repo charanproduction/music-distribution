@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:replace="~{layout :: layout(~{::content}, 'aiAnalytics')}">
+<div th:fragment="content">
+
+    <h2 class="mb-3">
+        <i class="fas fa-brain"></i> AI Music Analytics Center
+    </h2>
+
+    <form method="get" class="card card-body mb-3">
+        <div class="form-row">
+            <div class="col-md-3">
+                <label>Year</label>
+                <select name="year" class="form-control">
+                    <option value="">ALL</option>
+                    <option th:each="y : ${years}"
+                            th:value="${y}"
+                            th:text="${y}"
+                            th:selected="${y == selectedYear}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label>Label / Channel</label>
+                <select name="label" class="form-control">
+                    <option value="ALL">ALL</option>
+                    <option th:each="l : ${labels}"
+                            th:value="${l}"
+                            th:text="${l}"
+                            th:selected="${l == selectedLabel}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+                <button class="btn btn-primary btn-block">
+                    <i class="fas fa-search"></i> Analyze
+                </button>
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+                <a th:href="@{/admin/ai-analytics}" class="btn btn-outline-secondary btn-block">
+                    Reset
+                </a>
+            </div>
+        </div>
+    </form>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="small-box bg-primary">
+                <div class="inner">
+                    <h3 th:text="${stats.uniqueSongs}">0</h3>
+                    <p>Unique Songs</p>
+                </div>
+                <div class="icon"><i class="fas fa-music"></i></div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="small-box bg-info">
+                <div class="inner">
+                    <h3 th:text="${stats.uniqueArtists}">0</h3>
+                    <p>Unique Artists</p>
+                </div>
+                <div class="icon"><i class="fas fa-user"></i></div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="small-box bg-success">
+                <div class="inner">
+                    <h3 th:text="${stats.netRevenue}">0</h3>
+                    <p>Net Revenue</p>
+                </div>
+                <div class="icon"><i class="fas fa-coins"></i></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-outline card-primary">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-lightbulb"></i> OpenAI Executive Summary
+            </h3>
+        </div>
+        <div class="card-body">
+            <pre style="white-space: pre-wrap; font-size:15px;" th:text="${stats.aiSummary}"></pre>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary">Platform Revenue</div>
+                <div class="card-body">
+                    <canvas id="platformChart" height="180"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-success">Country Revenue</div>
+                <div class="card-body">
+                    <canvas id="countryChart" height="180"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-warning">
+            Top Songs by Revenue
+        </div>
+        <div class="card-body">
+            <canvas id="topSongsChart" height="120"></canvas>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        window.AI_ANALYTICS = {
+            platformRevenue: [[${stats.platformRevenue}]],
+            countryRevenue: [[${stats.countryRevenue}]],
+            topSongs: [[${stats.topSongs}]]
+        };
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const data = window.AI_ANALYTICS || {};
+
+            function labels(obj) {
+                return Object.keys(obj || {});
+            }
+
+            function values(obj) {
+                return Object.values(obj || {}).map(v => Number(v));
+            }
+
+            function barChart(id, label, source) {
+                const el = document.getElementById(id);
+                if (!el) return;
+
+                new Chart(el, {
+                    type: "bar",
+                    data: {
+                        labels: labels(source),
+                        datasets: [{
+                            label: label,
+                            data: values(source)
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: true }
+                        },
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+            }
+
+            barChart("platformChart", "Platform Revenue", data.platformRevenue);
+            barChart("countryChart", "Country Revenue", data.countryRevenue);
+            barChart("topSongsChart", "Top Songs Revenue", data.topSongs);
+        });
+    </script>
+
+</div>
+</div>
+</html>

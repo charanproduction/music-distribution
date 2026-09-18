@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Rights Consents Review</title>
+</head>
+<body>
+<div th:replace="~{layout :: layout(~{::content}, 'rights-consents')}">
+    <div th:fragment="content">
+
+        <div class="content-header">
+            <div class="container-fluid">
+                <h3 class="mb-3">Rights Consent Review</h3>
+
+                <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+                <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+            </div>
+        </div>
+
+        <section class="content">
+            <div class="container-fluid">
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Pending & Recent Consents</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-striped mb-0">
+                            <thead class="thead-light">
+                            <tr>
+                                <th>#</th>
+                                <th>User</th>
+                                <th>Channel</th>
+                                <th>Submitted On</th>
+                                <th>Status</th>
+                                <th>View</th>
+                                <th>Admin Comment</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:if="${consents == null or #lists.isEmpty(consents)}">
+                                <td colspan="8" class="text-center text-muted p-3">
+                                    No consent submissions found.
+                                </td>
+                            </tr>
+                            <tr th:each="c, i : ${consents}">
+                                <td th:text="${i.index + 1}"></td>
+                                <td th:text="${c.user.username}"></td>
+                                <td th:text="${c.user.channelName}"></td>
+                                <td th:text="${#temporals.format(c.submittedAt, 'dd-MMM-yyyy HH:mm')}"></td>
+                                <td th:text="${c.status}"></td>
+                                <td>
+                                    <a th:href="@{|/admin/compliance/rights/${c.id}/download|}"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-file-download"></i>
+                                    </a>
+                                </td>
+                                <td th:text="${c.adminComment}">-</td>
+                                <td>
+                                    <form th:action="@{|/admin/compliance/rights/${c.id}/approve|}"
+                                          method="post" class="d-inline">
+                                        <button class="btn btn-sm btn-success"
+                                                th:disabled="${c.status.name() == 'APPROVED'}">
+                                            Approve
+                                        </button>
+                                    </form>
+                                    <form th:action="@{|/admin/compliance/rights/${c.id}/reject|}"
+                                          method="post" class="d-inline">
+                                        <button class="btn btn-sm btn-danger"
+                                                th:disabled="${c.status.name() == 'REJECTED'}">
+                                            Reject
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </div>
+</div>
+</body>
+</html>

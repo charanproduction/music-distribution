@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div th:replace="~{layout :: layout(~{::content}, 'revenue')}">
+
+	<div th:fragment="content">
+
+		<h2 class="mb-4">
+			<i class="fas fa-coins"></i> Revenue & Payments
+		</h2>
+
+		<!-- TOP SUMMARY CARDS -->
+		<div class="row mb-3">
+			<div class="col-md-4">
+				<div class="small-box bg-primary">
+					<div class="inner">
+						<h3 th:text="${totalRevenueAllTime}">0</h3>
+						<p>Total Revenue (All Time)</p>
+					</div>
+					<div class="icon">
+						<i class="fas fa-wallet"></i>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-4">
+				<div class="small-box bg-success">
+					<div class="inner">
+						<h3 th:text="${clientShareAllTime}">0</h3>
+						<p>Client Share (70%)</p>
+					</div>
+					<div class="icon">
+						<i class="fas fa-user"></i>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-4">
+				<div class="small-box bg-warning">
+					<div class="inner">
+						<h3 th:text="${companyShareAllTime}">0</h3>
+						<p>Company Share (30%)</p>
+					</div>
+					<div class="icon">
+						<i class="fas fa-building"></i>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- FILTERS -->
+		<div class="card mb-3">
+			<div class="card-header">
+				<h3 class="card-title">
+					<i class="fas fa-filter"></i> Filters
+				</h3>
+			</div>
+			<div class="card-body">
+				<form method="get" class="form-row">
+
+					<!-- Channel with auto search via datalist -->
+					<div class="form-group col-md-3">
+						<label>Channel</label> <input type="text" name="channel"
+							class="form-control" list="channelList" placeholder="All"
+							th:value="${selectedChannel}">
+						<datalist id="channelList">
+							<option value="ALL">ALL</option>
+							<option th:each="ch : ${channels}" th:value="${ch}"></option>
+						</datalist>
+					</div>
+
+					<div class="form-group col-md-2">
+						<label>Year</label> <select name="year" class="form-control">
+							<option value="">ALL</option>
+							<option th:each="y : ${years}" th:value="${y}" th:text="${y}"
+								th:selected="${y} == ${selectedYear}"></option>
+						</select>
+					</div>
+
+					<div class="form-group col-md-2">
+						<label>Quarter</label> <select name="quarter" class="form-control">
+							<option value="">ALL</option>
+							<option th:each="q : ${quarters}" th:value="${q}" th:text="${q}"
+								th:selected="${q} == ${selectedQuarter}"></option>
+						</select>
+					</div>
+
+					<div class="form-group col-md-2">
+						<label>Month</label> <select name="month" class="form-control">
+							<option value="">ALL</option>
+							<option th:each="m : ${months}" th:value="${m}" th:text="${m}"
+								th:selected="${m} == ${selectedMonth}"></option>
+						</select>
+					</div>
+
+					<div class="form-group col-md-3 d-flex align-items-end">
+						<button type="submit" class="btn btn-primary mr-2">
+							<i class="fas fa-search"></i> Search
+						</button>
+						<a th:href="@{/admin/revenue}" class="btn btn-outline-secondary">
+							Reset </a>
+					</div>
+
+				</form>
+			</div>
+		</div>
+
+		<!-- RESULTS TABLE -->
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">Results</h3>
+			</div>
+
+			<div class="card-body p-0">
+				<table class="table table-striped mb-0">
+					<thead class="thead-light">
+						<tr>
+							<th>Year</th>
+							<th>Quarter</th>
+							<th>Month</th>
+							<th>Channel</th>
+							<th class="text-right">INR</th>
+							<th class="text-right">Client Share</th>
+							<th class="text-right">Company Share</th>
+							<th class="text-right">Payable</th>
+							<th>Payment</th>
+						</tr>
+					</thead>
+
+					<tbody>
+						<tr th:each="row : ${revenueList}">
+							<td th:text="${row.year}"></td>
+							<td th:text="${row.quarter}"></td>
+							<td th:text="${row.salesMonth}"></td>
+							<td th:text="${row.channelName}"></td>
+							<td class="text-right" th:text="${row.inrValue}"></td>
+							<td class="text-right" th:text="${row.clientShare}"></td>
+							<td class="text-right" th:text="${row.companyShare}"></td>
+							<td class="text-right" th:text="${row.payableAmount}"></td>
+
+							<td>
+								<!-- IF PAID -->
+								<div th:if="${row.paid}">
+									<span class="badge badge-success">Paid</span>
+
+									<div class="btn-group">
+										<button class="btn btn-sm btn-secondary dropdown-toggle"
+											data-toggle="dropdown">
+											<i class="fas fa-ellipsis-h"></i>
+										</button>
+
+										<div class="dropdown-menu dropdown-menu-right">
+											<a class="dropdown-item" href="#"
+												th:onclick="'openPaymentDetails(' + ${row.paymentId} + ')'">
+												<i class="fas fa-eye text-primary"></i> View
+											</a> <a class="dropdown-item" href="#"
+												th:onclick="'openPaymentEdit(' + ${row.paymentId} + ')'">
+												<i class="fas fa-edit text-warning"></i> Edit
+											</a> <a class="dropdown-item text-danger" href="#"
+												th:onclick="'deletePayment(' + ${row.paymentId} + ')'">
+												<i class="fas fa-trash"></i> Delete
+											</a>
+										</div>
+									</div>
+								</div> <!-- IF NOT PAID -->
+								<button th:if="${!row.paid}"
+									class="btn btn-primary btn-sm btn-mark-paid"
+									th:data-id="${row.id}" th:data-channel="${row.channelName}"
+									th:data-year="${row.year}" th:data-quarter="${row.quarter}"
+									th:data-amount="${row.clientShare}">Make Payment</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+
+				<!-- PAGINATION (NULL SAFE) -->
+				<nav aria-label="Page Navigation" class="mt-3">
+					<ul class="pagination justify-content-center">
+
+						<!-- Previous Button -->
+						<li class="page-item"
+							th:classappend="${currentPage == 0} ? 'disabled'"><a
+							class="page-link"
+							th:href="@{|/admin/revenue?page=${currentPage - 1}|}"> Prev </a>
+						</li>
+
+						<!-- Visible Page Range Logic -->
+						<li class="page-item"
+							th:each="i : ${#numbers.sequence(
+                T(java.lang.Math).max(0, currentPage - 2),
+                T(java.lang.Math).min(totalPages - 1, currentPage + 2)
+            )}"
+							th:classappend="${i == currentPage} ? 'active'"><a
+							class="page-link" th:text="${i + 1}"
+							th:href="@{|/admin/revenue?page=${i}|}"> </a></li>
+
+						<!-- Next Button -->
+						<li class="page-item"
+							th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+							<a class="page-link"
+							th:href="@{|/admin/revenue?page=${currentPage + 1}|}"> Next </a>
+						</li>
+					</ul>
+
+					<!-- Jump To Page Input -->
+					<div class="text-center mt-2">
+						<form method="get" style="display: inline-block">
+							<label style="margin-right: 8px;">Go to Page</label> <input
+								type="number" name="page" min="1" th:max="${totalPages}"
+								th:value="${currentPage + 1}" style="width: 70px; height: 32px;"
+								class="form-control d-inline-block" />
+							<button class="btn btn-primary btn-sm">Go</button>
+						</form>
+					</div>
+				</nav>
+			</div>
+		</div>
+
+
+		<!-- PAYMENT MODAL -->
+		<div class="modal fade" id="paymentModal" tabindex="-1" role="dialog"
+			aria-labelledby="paymentModalLabel" aria-hidden="true">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<form method="post" th:action="@{/admin/revenue/payment}">
+						<div class="modal-header">
+							<h5 class="modal-title" id="paymentModalLabel">Payment</h5>
+							<button type="button" class="close" data-dismiss="modal"
+								aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<div class="modal-body">
+
+							<th:block th:if="${_csrf != null}">
+								<input type="hidden" th:name="${_csrf.parameterName}"
+									th:value="${_csrf.token}" />
+							</th:block>
+
+							<!-- keep filters -->
+							<input type="hidden" name="filterChannel"
+								th:value="${selectedChannel}"> <input type="hidden"
+								name="filterYear" th:value="${selectedYear}"> <input
+								type="hidden" name="filterQuarter" th:value="${selectedQuarter}">
+							<input type="hidden" name="filterMonth"
+								th:value="${selectedMonth}">
+
+							<div class="form-group">
+								<label>Channel</label> <input type="text" name="channelName"
+									class="form-control" id="payChannel" readonly>
+							</div>
+
+							<div class="form-row">
+								<div class="form-group col-md-6">
+									<label>Year</label> <input type="text" name="year"
+										class="form-control" id="payYear" readonly>
+								</div>
+								<div class="form-group col-md-6">
+									<label>Quarter</label> <input type="text" name="quarter"
+										class="form-control" id="payQuarter" readonly>
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label>Amount (Client Share)</label> <input type="text"
+									name="amount" class="form-control" id="payAmount" readonly>
+							</div>
+
+							<div class="form-group">
+								<label>Payment Method</label> <input type="text"
+									name="paymentMethod" class="form-control" id="payMethod">
+							</div>
+
+							<div class="form-group">
+								<label>Payment Reference</label> <input type="text"
+									name="paymentReference" class="form-control" id="payReference">
+							</div>
+
+							<div class="form-group">
+								<label>Payment Date</label> <input type="date"
+									name="paymentDate" class="form-control" id="payDate">
+							</div>
+
+							<input type="hidden" name="status" id="payStatus" value="PAID">
+
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary"
+								data-dismiss="modal">Close</button>
+							<button type="submit" class="btn btn-primary" id="paySubmitBtn">
+								Save Payment</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<!-- PAGE-SPECIFIC JS -->
+		<script>
+			document.addEventListener("DOMContentLoaded", function() {
+
+				const modal = $('#paymentModal');
+
+				// Mark as Paid -> editable form
+				$('.btn-mark-paid').on(
+						'click',
+						function() {
+							const btn = $(this);
+							$('#paymentModalLabel').text('Mark as Paid');
+
+							$('#payChannel').val(btn.data('channel'));
+							$('#payYear').val(btn.data('year'));
+							$('#payQuarter').val(btn.data('quarter'));
+							$('#payAmount').val(btn.data('amount'));
+							$('#payMethod').val('');
+							$('#payReference').val('');
+							$('#payDate').val(
+									new Date().toISOString().slice(0, 10));
+							$('#payStatus').val('PAID');
+
+							$('#payMethod, #payReference, #payDate').prop(
+									'readonly', false);
+							$('#paySubmitBtn').show();
+						});
+
+				// View details -> read-only
+				$('.btn-view-payment').on(
+						'click',
+						function() {
+							const btn = $(this);
+							$('#paymentModalLabel').text('Payment Details');
+
+							$('#payChannel').val(btn.data('channel'));
+							$('#payYear').val(btn.data('year'));
+							$('#payQuarter').val(btn.data('quarter'));
+							$('#payAmount').val(btn.data('amount'));
+							$('#payMethod').val(btn.data('method'));
+							$('#payReference').val(btn.data('reference'));
+							$('#payDate').val(btn.data('date'));
+							$('#payStatus').val(btn.data('status'));
+
+							$('#payMethod, #payReference, #payDate').prop(
+									'readonly', true);
+							$('#paySubmitBtn').hide();
+						});
+
+				// When modal closed, reset to default
+				modal.on('hidden.bs.modal', function() {
+					$('#payMethod, #payReference, #payDate').prop('readonly',
+							false);
+					$('#paySubmitBtn').show();
+				});
+
+			});
+			// ==========================
+			// VIEW PAYMENT DETAILS
+			// ==========================
+			
+			function openPaymentDetails(id) {
+			    fetch(`/admin/revenue/payment/${id}`)
+			        .then(res => res.json())
+			        .then(p => {
+			            $('#paymentModalLabel').text('Payment Details');
+
+			            $('#payChannel').val(p.channelName);
+			            $('#payYear').val(p.year);
+			            $('#payQuarter').val(p.quarter);
+			            $('#payAmount').val(p.amount);
+			            $('#payMethod').val(p.paymentMethod);
+			            $('#payReference').val(p.paymentReference);
+			            $('#payDate').val(p.paymentDate);
+
+			            $('#payMethod, #payReference, #payDate').prop('readonly', true);
+			            $('#paySubmitBtn').hide();
+
+			            $('#paymentModal').modal('show');
+			        });
+			}
+			
+			function openMarkPayment(channel, year, quarter, amount) {
+			    $('#paymentModalLabel').text('Mark as Paid');
+			    $('#payChannel').val(channel);
+			    $('#payYear').val(year);
+			    $('#payQuarter').val(quarter);
+			    $('#payAmount').val(amount);
+
+			    $('#payMethod').val('');
+			    $('#payReference').val('');
+			    $('#payDate').val(new Date().toISOString().slice(0,10));
+
+			    $('#payMethod, #payReference, #payDate').prop('readonly', false);
+			    $('#paySubmitBtn').show();
+
+			    $('#paymentModal').modal('show');
+			}
+
+			function openPaymentEdit(id) {
+			    fetch(`/admin/revenue/payment/${id}`)
+			        .then(r=>r.json())
+			        .then(p=>{
+			            $('#paymentModalLabel').text('Edit Payment');
+
+			            $('#payChannel').val(p.channelName);
+			            $('#payYear').val(p.year);
+			            $('#payQuarter').val(p.quarter);
+			            $('#payAmount').val(p.amount);
+			            $('#payMethod').val(p.paymentMethod);
+			            $('#payReference').val(p.paymentReference);
+			            $('#payDate').val(p.paymentDate);
+
+			            $('#payMethod,#payReference,#payDate').prop('readonly',false);
+			            $('#paySubmitBtn').show();
+
+			            $('#paymentModal').modal('show');
+			        });
+			}
+
+			function deletePayment(id) {
+			    if(!confirm("Delete payment?")) return;
+
+			    fetch(`/admin/revenue/payment/delete/${id}`,{method:'DELETE'})
+			        .then(()=>location.reload());
+			}
+			document.addEventListener("click", function(event) {
+			    if (event.target.classList.contains("btn-mark-paid")) {
+			        const btn = event.target;
+
+			        $('#paymentModalLabel').text('Mark as Paid');
+
+			        $('#payChannel').val(btn.dataset.channel);
+			        $('#payYear').val(btn.dataset.year);
+			        $('#payQuarter').val(btn.dataset.quarter);
+			        $('#payAmount').val(btn.dataset.amount);
+
+			        $('#payMethod').val('');
+			        $('#payReference').val('');
+			        $('#payDate').val(new Date().toISOString().slice(0,10));
+
+			        $('#payMethod, #payReference, #payDate').prop('readonly', false);
+			        $('#paySubmitBtn').show();
+
+			        $('#paymentModal').modal('show');
+			    }
+			});
+		</script>
+
+	</div>
+
+</div>
+</html>
